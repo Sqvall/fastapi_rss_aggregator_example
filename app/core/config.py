@@ -9,7 +9,7 @@ API_PREFIX = "/api"
 JWT_TOKEN_PREFIX = "Token"
 VERSION = "0.0.0"
 
-config = Config(".env")
+config = Config('.env')
 
 DEBUG: bool = config("DEBUG", cast=bool, default=False)
 TESTING = config('TESTING', cast=bool, default=False)
