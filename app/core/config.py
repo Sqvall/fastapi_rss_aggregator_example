@@ -1,42 +1,54 @@
-from typing import List
+import logging
+import os
+import pathlib
 
-from databases import DatabaseURL
 from starlette.config import Config
-from starlette.datastructures import CommaSeparatedStrings, Secret
+from starlette.datastructures import Secret, CommaSeparatedStrings
 
+log = logging.getLogger("uvicorn")
+
+env_path = os.path.join(pathlib.Path(__file__).parent.absolute(), '../../.env')
+
+config = Config(env_path)
+
+PROJECT_NAME = "FastAPI example RSS-aggregator application"
 API_PREFIX = "/api"
-
+VERSION = "0.1.0"
 JWT_TOKEN_PREFIX = "Token"
-VERSION = "0.0.0"
 
-config = Config('.env')
+SECRET_KEY = config("SECRET_KEY", cast=Secret, default=None)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=CommaSeparatedStrings, default=['*'])
 
-DEBUG: bool = config("DEBUG", cast=bool, default=False)
-TESTING = config('TESTING', cast=bool, default=False)
-SECRET_KEY: Secret = config("SECRET_KEY", cast=Secret)
+DEBUG = config("DEBUG", cast=bool, default=True)
+TESTING = config("DEBUG", cast=bool, default=False)
 
-DATABASE_URL: DatabaseURL = config("DB_CONNECTION", cast=DatabaseURL)
-if TESTING:
-    DATABASE_URL = DATABASE_URL.replace(database='test_' + DATABASE_URL.database)
-# MAX_CONNECTIONS_COUNT: int = config("MAX_CONNECTIONS_COUNT", cast=int, default=10)
-# MIN_CONNECTIONS_COUNT: int = config("MIN_CONNECTIONS_COUNT", cast=int, default=10)
-
-
-PROJECT_NAME: str = config("PROJECT_NAME", default="FastAPI example RSS-aggregator application")
-ALLOWED_HOSTS: List[str] = config(
-    "ALLOWED_HOSTS",
-    cast=CommaSeparatedStrings,
-    default="",
-)
-
-# logging configuration
-
-# LOGGING_LEVEL = logging.DEBUG if DEBUG else logging.INFO
-# LOGGERS = ("uvicorn.asgi", "uvicorn.access")
-#
-# logging.getLogger().handlers = [InterceptHandler()]
-# for logger_name in LOGGERS:
-#     logging_logger = logging.getLogger(logger_name)
-#     logging_logger.handlers = [InterceptHandler(level=LOGGING_LEVEL)]
-#
-# logger.configure(handlers=[{"sink": sys.stderr, "level": LOGGING_LEVEL}])
+# Config DB
+DB_ENGINE = config("DB_DRIVER", default="tortoise.backends.asyncpg")
+DB_HOST = config("DB_HOST", default=None)
+DB_PORT = config('DB_PORT', cast=int, default=5432)
+DB_USER = config('DB_USER', default=None)
+DB_PASSWORD = config('DB_PASSWORD', default=None)
+DB_NAME = config('DB_NAME', default=None)
+TORTOISE_ORM = {
+    "connections": {"default": {
+        'engine': DB_ENGINE,
+        'credentials': {
+            'host': DB_HOST,
+            'port': DB_PORT,
+            'user': DB_USER,
+            'password': DB_PASSWORD,
+            'database': DB_NAME,
+        }
+    }},
+    "apps": {
+        "models": {
+            "models": [
+                'models.test_tortouse',
+                'aerich.models'
+            ],
+        }
+    }
+}
+# DATABASE_URL: str = 'postgres://rss_user:pass@localhost:5432/rss_local_db'
+# if TESTING:
+#     DATABASE_URL = 'test_' + DATABASE_URL
