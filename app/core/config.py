@@ -5,7 +5,8 @@ import pathlib
 from starlette.config import Config
 from starlette.datastructures import Secret, CommaSeparatedStrings
 
-log = logging.getLogger("uvicorn")
+uvicorn_logger = logging.getLogger("uvicorn")
+uvicorn_logger.propagate = False
 
 env_path = os.path.join(pathlib.Path(__file__).parent.absolute(), '../../.env')
 
@@ -43,12 +44,10 @@ TORTOISE_ORM = {
     "apps": {
         "models": {
             "models": [
+                'aerich.models',
                 'models.test_tortouse',
-                'aerich.models'
+                'models.feeds',
             ],
         }
     }
 }
-# DATABASE_URL: str = 'postgres://rss_user:pass@localhost:5432/rss_local_db'
-# if TESTING:
-#     DATABASE_URL = 'test_' + DATABASE_URL
