@@ -1,4 +1,5 @@
 import validators
+from tortoise.exceptions import FieldError
 from tortoise.fields import CharField
 
 
@@ -9,5 +10,5 @@ class URLField(CharField):
 
     def to_db_value(self, value: str, instance) -> str:
         if not validators.url(value):
-            raise ValueError(f"Value '{value}' is not URL")
+            raise FieldError(f"Value '{value}' is invalid URL value")
         return value

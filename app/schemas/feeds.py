@@ -7,6 +7,7 @@ class FeedIn(BaseModel):
     source_url: AnyUrl = Field(..., example='https://github.com/images/error/octocat_happy.gif')
     name: str = Field(..., example='Name for identification.')
     can_updated: bool = Field(..., description='Add for regular updates?')
+    # TODO: Need implements snake_case to camelCase!
 
 
 class FeedOut(FeedIn):
