@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from starlette import status
 
-from models.feeds import Feed
 from schemas.feeds import FeedOut, FeedIn
+from services.feeds import feed_create
 
 router = APIRouter()
 
@@ -13,7 +13,12 @@ router = APIRouter()
     response_model=FeedOut,
     name='feeds:create-feed',
 )
-async def create_feed(feed: FeedIn) -> FeedOut:
-    new_feed = await Feed.create(**feed.dict(exclude_unset=True))
+async def create_new_feed(feed_in: FeedIn = Body(..., embed=True, alias="feed")) -> FeedOut:
 
-    return FeedOut.from_orm(new_feed)
+    feed = await feed_create(
+        source_url=feed_in.source_url,
+        name=feed_in.name,
+        can_updated=feed_in.can_updated,
+    )
+
+    return FeedOut.from_orm(feed)
