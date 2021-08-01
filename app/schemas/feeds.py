@@ -1,18 +1,33 @@
 from typing import Optional
+from uuid import UUID
 
-from pydantic import BaseModel, AnyUrl, Field
+from pydantic import AnyUrl, Field
 
-
-class FeedIn(BaseModel):
-    source_url: AnyUrl = Field(..., example='https://github.com/images/error/octocat_happy.gif')
-    name: str = Field(..., example='Name for identification.')
-    can_updated: bool = Field(..., description='Add for regular updates?')
-    # TODO: Need implements snake_case to camelCase!
+from models.camelmodel import CamelModel
+from resources import strings
 
 
-class FeedOut(FeedIn):
-    title: Optional[str]
-    description: Optional[str]
+class FeedInCreate(CamelModel):
+    source_url: AnyUrl = Field(..., example=strings.EXAMPLE_SOURCE_URL)
+    name: str = Field(..., example=strings.EXAMPLE_NAME, min_length=2)
+    can_updated: bool = Field(..., description=strings.DESCRIPTION_CAN_UPDATED)
+
+
+class FeedInUpdate(CamelModel):
+    source_url: AnyUrl = Field(default=None, example=strings.EXAMPLE_SOURCE_URL)
+    name: str = Field(default=None, example=strings.EXAMPLE_NAME, min_length=2)
+    can_updated: bool = Field(default=None, description=strings.DESCRIPTION_CAN_UPDATED)
+    title: Optional[str] = None
+    description: Optional[str] = None
+
+
+class FeedOut(CamelModel):
+    guid: UUID
+    source_url: AnyUrl
+    name: str
+    can_updated: bool
+    title: str
+    description: str
 
     class Config:
         orm_mode = True

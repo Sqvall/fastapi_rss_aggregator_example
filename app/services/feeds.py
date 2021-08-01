@@ -1,16 +1,13 @@
 from pydantic import AnyUrl
+from sqlalchemy.exc import NoResultFound
 
-from models.feeds import Feed
-
-
-async def feed_create(*, source_url: AnyUrl, name: str, can_updated: bool) -> Feed:
-    new_feed = await Feed.create(
-        source_url=source_url,
-        name=name,
-        can_updated=can_updated,
-    )
-    return new_feed
+from db.repositories.feeds import FeedsRepository
 
 
-async def check_feed_exists(*, source_url: AnyUrl, name: str):
-    ...
+async def check_feed_exists(feed_repo: FeedsRepository, source_url: AnyUrl) -> bool:
+    try:
+        await feed_repo.get_by_source_url(source_url)
+    except NoResultFound:
+        return False
+
+    return True
