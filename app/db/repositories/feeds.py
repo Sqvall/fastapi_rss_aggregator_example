@@ -2,9 +2,11 @@ from typing import List, Optional
 from uuid import UUID
 
 from pydantic import AnyUrl
-from sqlalchemy import update
+from sqlalchemy.engine import Result
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
 
+from db.errors import EntityDoesNotExist
 from db.repositories.base import BaseRepository
 from models.feeds import Feed
 
@@ -39,31 +41,30 @@ class FeedsRepository(BaseRepository):
         feed.title = title if title is not None else feed.title
         feed.description = description if description is not None else feed.description
 
-        stmt = (
-            update(Feed).
-                where(Feed.guid == feed.guid).
-                values(
-                source_url=feed.source_url,
-                name=feed.name,
-                can_updated=feed.can_updated,
-                title=feed.title,
-                description=feed.description,
-            )
-        )
-        await self.session.execute(stmt)
+        await self.session.commit()
 
         return feed
 
     async def get_by_id(self, guid: UUID) -> Feed:
-        feed = await self.session.execute(select(Feed).where(Feed.guid == guid))
+        stmt = select(Feed).where(Feed.guid == guid)
+        result = await self.session.execute(stmt)
 
-        return feed.scalars().one()
+        try:
+            return result.scalars().one()
+        except NoResultFound:
+            raise EntityDoesNotExist(f'Feed with guid {guid} already exist.')
 
     async def get_by_source_url(self, source_url: AnyUrl) -> Feed:
-        feed = await self.session.execute(select(Feed).where(Feed.source_url == source_url))
+        stmt = select(Feed).where(Feed.source_url == source_url)
+        result = await self.session.execute(stmt)
 
-        return feed.scalars().one()
+        try:
+            return result.scalars().one()
+        except NoResultFound:
+            raise EntityDoesNotExist(f'Feed with source_url {source_url} already exist.')
 
     async def get_all_feeds(self) -> List[Feed]:
-        q = await self.session.execute(select(Feed).order_by(Feed.guid))
-        return q.scalars().all()
+        stmt = select(Feed).order_by(Feed.guid)
+        result: Result = await self.session.execute(stmt)
+
+        return result.scalars().all()

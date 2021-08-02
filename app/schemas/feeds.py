@@ -14,11 +14,11 @@ class FeedInCreate(CamelModel):
 
 
 class FeedInUpdate(CamelModel):
-    source_url: AnyUrl = Field(default=None, example=strings.EXAMPLE_SOURCE_URL)
-    name: str = Field(default=None, example=strings.EXAMPLE_NAME, min_length=2)
-    can_updated: bool = Field(default=None, description=strings.DESCRIPTION_CAN_UPDATED)
-    title: Optional[str] = None
-    description: Optional[str] = None
+    source_url: Optional[AnyUrl] = Field(default=None, example=strings.EXAMPLE_SOURCE_URL)
+    name: Optional[str] = Field(default=None, example=strings.EXAMPLE_NAME, min_length=2)
+    can_updated: Optional[bool] = Field(default=None, description=strings.DESCRIPTION_CAN_UPDATED)
+    title: Optional[str]
+    description: Optional[str]
 
 
 class FeedOut(CamelModel):

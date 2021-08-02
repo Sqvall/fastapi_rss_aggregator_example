@@ -4,5 +4,5 @@ do
   sleep 1
 done
 
-aerich upgrade
-uvicorn main:app --host=0.0.0.0 --port=8020
+#aerich upgrade
+poetry run uvicorn main:app --host=0.0.0.0 --port=8020
