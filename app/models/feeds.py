@@ -9,9 +9,9 @@ class Feed(Base):
 
     id = Column(Integer, primary_key=True)
     source_url = Column(String, unique=True, nullable=False)
-    name = Column(String(256))
+    name = Column(String)
     can_updated = Column(Boolean, default=True)
-    title = Column(String(256), default='')
+    title = Column(String, default='')
     description = Column(Text, default='')
 
     @validates('name')
