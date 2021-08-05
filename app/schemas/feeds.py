@@ -1,5 +1,4 @@
 from typing import Optional
-from uuid import UUID
 
 from pydantic import AnyUrl, Field
 
@@ -22,7 +21,7 @@ class FeedInUpdate(CamelModel):
 
 
 class FeedOut(CamelModel):
-    guid: UUID
+    id: int
     source_url: AnyUrl
     name: str
     can_updated: bool
