@@ -1,7 +1,4 @@
-import uuid
-
-from sqlalchemy import Column, String, Text, Boolean
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, String, Text, Boolean, Integer
 from sqlalchemy.orm import validates
 
 from db.database import Base
@@ -10,7 +7,7 @@ from db.database import Base
 class Feed(Base):
     __tablename__ = "feeds"
 
-    guid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True)
     source_url = Column(String, unique=True, nullable=False)
     name = Column(String(256))
     can_updated = Column(Boolean, default=True)

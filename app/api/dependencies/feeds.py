@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import Path, Depends, HTTPException
 from starlette import status
 
@@ -11,7 +9,7 @@ from resources import strings
 
 
 async def get_feed_by_id_from_path(
-        feed_id: UUID = Path,
+        feed_id: int = Path,
         feeds_repo: FeedsRepository = Depends(get_repository(FeedsRepository)),
 ) -> Feed:
     try:

@@ -1,5 +1,4 @@
 from typing import List, Optional
-from uuid import UUID
 
 from pydantic import AnyUrl
 from sqlalchemy.engine import Result
@@ -51,14 +50,14 @@ class FeedsRepository(BaseRepository):
 
         return feed
 
-    async def get_by_id(self, guid: UUID) -> Feed:
-        stmt = select(Feed).where(Feed.guid == guid)
+    async def get_by_id(self, id: int) -> Feed:
+        stmt = select(Feed).where(Feed.id == id)
         result: Result = await self.session.execute(stmt)
 
         try:
             return result.scalar_one()
         except NoResultFound:
-            raise EntityDoesNotExist(f'Feed with guid {guid} already exist.')
+            raise EntityDoesNotExist(f'Feed with id {id} already exist.')
 
     async def get_by_source_url(self, source_url: AnyUrl) -> Feed:
         stmt = select(Feed).where(Feed.source_url == source_url)
