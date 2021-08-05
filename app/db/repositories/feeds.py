@@ -13,7 +13,13 @@ from models.feeds import Feed
 
 class FeedsRepository(BaseRepository):
 
-    async def create(self, *, source_url: AnyUrl, name: str, can_updated: bool) -> Feed:
+    async def create(
+            self,
+            *,
+            source_url: AnyUrl,
+            name: str,
+            can_updated: bool
+    ) -> Feed:
         new_feed = Feed(
             source_url=str(source_url),
             name=name,
@@ -21,7 +27,7 @@ class FeedsRepository(BaseRepository):
         )
         self.session.add(new_feed)
 
-        await self.session.flush()
+        await self.session.commit()
 
         return new_feed
 
@@ -47,24 +53,24 @@ class FeedsRepository(BaseRepository):
 
     async def get_by_id(self, guid: UUID) -> Feed:
         stmt = select(Feed).where(Feed.guid == guid)
-        result = await self.session.execute(stmt)
+        result: Result = await self.session.execute(stmt)
 
         try:
-            return result.scalars().one()
+            return result.scalar_one()
         except NoResultFound:
             raise EntityDoesNotExist(f'Feed with guid {guid} already exist.')
 
     async def get_by_source_url(self, source_url: AnyUrl) -> Feed:
         stmt = select(Feed).where(Feed.source_url == source_url)
-        result = await self.session.execute(stmt)
+        result: Result = await self.session.execute(stmt)
 
         try:
-            return result.scalars().one()
+            return result.scalar_one()
         except NoResultFound:
             raise EntityDoesNotExist(f'Feed with source_url {source_url} already exist.')
 
     async def get_all_feeds(self) -> List[Feed]:
-        stmt = select(Feed).order_by(Feed.guid)
+        stmt = select(Feed).order_by(Feed.name)
         result: Result = await self.session.execute(stmt)
 
         return result.scalars().all()

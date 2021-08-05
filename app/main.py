@@ -6,7 +6,6 @@ from api.errors.http_error import http_error_handler
 from api.errors.validation_error import http422_error_handler
 from api.routes.api import router as api_router
 from core import config
-from core.events import create_start_app_handler, create_shutdown_app_handler
 
 
 def get_application() -> FastAPI:
@@ -19,9 +18,6 @@ def get_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    application.add_event_handler("startup", create_start_app_handler())
-    application.add_event_handler("shutdown", create_shutdown_app_handler())
 
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)

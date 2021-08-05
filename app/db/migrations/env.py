@@ -8,7 +8,7 @@ from core.config import DB_URL
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-from db.database import Base
+from models.feeds import Feed
 
 config = context.config
 
@@ -20,7 +20,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+target_metadata = [Feed.__table__.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
