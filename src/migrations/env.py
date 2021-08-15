@@ -5,7 +5,6 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from app.core.config import DB_URL
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from app.models.feeds import Feed
