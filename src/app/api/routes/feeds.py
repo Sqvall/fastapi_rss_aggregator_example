@@ -79,7 +79,7 @@ async def list_feed(
 @router.get(
     '/{feed_id}',
     response_model=FeedOut,
-    name="feed:get-feed",
+    name="feeds:get-feed",
 )
 async def retrieve_feed_by_id(
         feed: Feed = Depends(get_feed_by_id_from_path)
