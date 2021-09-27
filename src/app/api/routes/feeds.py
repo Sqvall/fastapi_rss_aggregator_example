@@ -9,7 +9,7 @@ from app.db.repositories.feeds import FeedsRepository
 from app.models.feeds import Feed
 from app.resources import strings
 from app.schemas.feeds import FeedOut, FeedInCreate, FeedInUpdate
-from app.services.feeds import check_feed_exists
+from app.services.feeds import check_feed_already_exists
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def create_new_feed(
         feed: FeedInCreate,
         feed_repo: FeedsRepository = Depends(get_repository(FeedsRepository))
 ):
-    if await check_feed_exists(feed_repo, feed.source_url):
+    if await check_feed_already_exists(feed_repo, feed.source_url):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=strings.FEED_WITH_THIS_SOURCE_URL_ALREADY_EXIST.format(feed.source_url)
@@ -51,7 +51,7 @@ async def update_feed(
     is_new_source_url = feed_updated.source_url and feed_updated.source_url != current_feed.source_url
 
     if is_new_source_url:
-        if await check_feed_exists(feed_repo, feed_updated.source_url):
+        if await check_feed_already_exists(feed_repo, feed_updated.source_url):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=strings.FEED_WITH_THIS_SOURCE_URL_ALREADY_EXIST.format(feed_updated.source_url)

@@ -31,6 +31,7 @@ DB_PORT = config('DB_PORT', cast=int, default=5432)
 DB_USER = config('DB_USER', default=None)
 DB_PASSWORD = config('DB_PASSWORD', default=None)
 DB_NAME = config('DB_NAME' if not TESTING else 'TEST_DB_NAME', default=None)
+
 DB_URL = config(
     "DB_DSN",
     cast=make_url,

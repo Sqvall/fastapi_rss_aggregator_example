@@ -50,14 +50,14 @@ class FeedsRepository(BaseRepository):
 
         return feed
 
-    async def get_by_id(self, id: int) -> Feed:
-        stmt = select(Feed).where(Feed.id == id)
+    async def get_by_id(self, id_: int) -> Feed:
+        stmt = select(Feed).where(Feed.id == id_)
         result: Result = await self.session.execute(stmt)
 
         try:
             return result.scalar_one()
         except NoResultFound:
-            raise EntityDoesNotExist(f'Feed with id {id} already exist.')
+            raise EntityDoesNotExist(f'Feed with id {id_} not exist.')
 
     async def get_by_source_url(self, source_url: AnyUrl) -> Feed:
         stmt = select(Feed).where(Feed.source_url == source_url)
@@ -66,7 +66,7 @@ class FeedsRepository(BaseRepository):
         try:
             return result.scalar_one()
         except NoResultFound:
-            raise EntityDoesNotExist(f'Feed with source_url {source_url} already exist.')
+            raise EntityDoesNotExist(f'Feed with source_url {source_url} not exist.')
 
     async def get_all_feeds(self) -> List[Feed]:
         stmt = select(Feed).order_by(Feed.name)

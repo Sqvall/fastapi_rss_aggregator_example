@@ -9,7 +9,7 @@ WORKDIR /src
 COPY ./src ./
 
 RUN pip install --upgrade pip && \
-    pip install poetry==1.1.7 && \
+    pip install poetry==1.1.10 && \
     poetry config virtualenvs.in-project true && \
     poetry install --no-dev
 
