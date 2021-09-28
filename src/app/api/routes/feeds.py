@@ -1,14 +1,13 @@
-from typing import List
-
-from fastapi import APIRouter, Depends, Body, HTTPException
+from fastapi import APIRouter, Depends, Body, HTTPException, Query
 from starlette import status
 
 from app.api.dependencies.database import get_repository
 from app.api.dependencies.feeds import get_feed_by_id_from_path
 from app.db.repositories.feeds import FeedsRepository
+from app.schemas.common import PaginatedResponse
 from app.models.feeds import Feed
 from app.resources import strings
-from app.schemas.feeds import FeedOut, FeedInCreate, FeedInUpdate
+from app.schemas.feeds import FeedOut, FeedInCreate, FeedInUpdate, DEFAULT_FEEDS_LIMIT, DEFAULT_FEEDS_OFFSET
 from app.services.feeds import check_feed_already_exists
 
 router = APIRouter()
@@ -66,14 +65,17 @@ async def update_feed(
 
 @router.get(
     '',
-    response_model=List[FeedOut],
+    response_model=PaginatedResponse[FeedOut],
     name='feeds:list-feeds',
 )
 async def list_feed(
-        feed_repo: FeedsRepository = Depends(get_repository(FeedsRepository))
+        feed_repo: FeedsRepository = Depends(get_repository(FeedsRepository)),
+        limit: int = Query(DEFAULT_FEEDS_LIMIT, ge=1),
+        offset: int = Query(DEFAULT_FEEDS_OFFSET, ge=0),
 ):
-    all_feeds = await feed_repo.get_all_feeds()
-    return all_feeds
+    feeds = await feed_repo.get_feeds(limit=limit, offset=offset)
+    total_count = await feed_repo.get_total_count()
+    return PaginatedResponse[FeedOut](items=feeds, items_total=total_count)
 
 
 @router.get(
@@ -81,7 +83,17 @@ async def list_feed(
     response_model=FeedOut,
     name="feeds:get-feed",
 )
-async def retrieve_feed_by_id(
-        feed: Feed = Depends(get_feed_by_id_from_path)
-):
+async def retrieve_feed_by_id(feed: Feed = Depends(get_feed_by_id_from_path)):
     return feed
+
+
+@router.delete(
+    '/{feed_id}',
+    status_code=status.HTTP_204_NO_CONTENT,
+    name='feeds:delete'
+)
+async def delete_feed_by_id(
+        feed: Feed = Depends(get_feed_by_id_from_path),
+        feed_repo=Depends(get_repository(FeedsRepository)),
+):
+    await feed_repo.delete(feed=feed)

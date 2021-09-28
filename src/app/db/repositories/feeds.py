@@ -1,6 +1,7 @@
+import copy
 from typing import List, Optional
 
-from pydantic import AnyUrl
+from sqlalchemy import func, update
 from sqlalchemy.engine import Result
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
@@ -15,7 +16,7 @@ class FeedsRepository(BaseRepository):
     async def create(
             self,
             *,
-            source_url: AnyUrl,
+            source_url: str,
             name: str,
             can_updated: bool
     ) -> Feed:
@@ -24,11 +25,15 @@ class FeedsRepository(BaseRepository):
             name=name,
             can_updated=can_updated,
         )
-        self.session.add(new_feed)
+        self._session.add(new_feed)
 
-        await self.session.commit()
+        await self._session.commit()
 
         return new_feed
+
+    async def delete(self, *, feed: Feed):
+        await self._session.delete(feed)
+        await self._session.commit()
 
     async def update(
             self,
@@ -39,37 +44,53 @@ class FeedsRepository(BaseRepository):
             can_updated: Optional[bool] = None,
             title: Optional[str] = None,
             description: Optional[str] = None,
-    ):
-        feed.source_url = source_url or feed.source_url
-        feed.name = name if name is not None else feed.name
-        feed.can_updated = can_updated if can_updated is not None else feed.can_updated
-        feed.title = title if title is not None else feed.title
-        feed.description = description if description is not None else feed.description
+    ) -> Feed:
+        updated_feed = copy.deepcopy(feed)
 
-        await self.session.commit()
+        updated_feed.source_url = source_url or feed.source_url
+        updated_feed.name = name or feed.name
+        updated_feed.can_updated = can_updated if can_updated is not None else feed.can_updated
+        updated_feed.title = title or feed.title
+        updated_feed.description = description or feed.description
 
-        return feed
+        stmt = update(Feed).where(Feed.id == feed.id).values(
+            source_url=updated_feed.source_url,
+            name=updated_feed.name,
+            can_updated=updated_feed.can_updated,
+            title=updated_feed.title,
+            description=updated_feed.description,
+        )
 
-    async def get_by_id(self, id_: int) -> Feed:
+        await self._session.execute(stmt)
+
+        return updated_feed
+
+    async def get_by_id(self, *, id_: int) -> Feed:
         stmt = select(Feed).where(Feed.id == id_)
-        result: Result = await self.session.execute(stmt)
+        result: Result = await self._session.execute(stmt)
 
         try:
             return result.scalar_one()
         except NoResultFound:
             raise EntityDoesNotExist(f'Feed with id {id_} not exist.')
 
-    async def get_by_source_url(self, source_url: AnyUrl) -> Feed:
+    async def get_by_source_url(self, *, source_url: str) -> Feed:
         stmt = select(Feed).where(Feed.source_url == source_url)
-        result: Result = await self.session.execute(stmt)
+        result: Result = await self._session.execute(stmt)
 
         try:
             return result.scalar_one()
         except NoResultFound:
             raise EntityDoesNotExist(f'Feed with source_url {source_url} not exist.')
 
-    async def get_all_feeds(self) -> List[Feed]:
-        stmt = select(Feed).order_by(Feed.name)
-        result: Result = await self.session.execute(stmt)
+    async def get_feeds(self, *, limit=20, offset=0) -> List[Feed]:
+        stmt = select(Feed).order_by(-Feed.id).offset(offset).limit(limit)
+        result: Result = await self._session.execute(stmt)
 
         return result.scalars().all()
+
+    async def get_total_count(self) -> int:
+        stmt = select(func.count(Feed.id))
+        result: Result = await self._session.execute(stmt)
+
+        return result.scalar_one()
