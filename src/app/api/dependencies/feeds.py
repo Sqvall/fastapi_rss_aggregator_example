@@ -13,7 +13,7 @@ async def get_feed_by_id_from_path(
         feeds_repo: FeedsRepository = Depends(get_repository(FeedsRepository)),
 ) -> Feed:
     try:
-        return await feeds_repo.get_by_id(feed_id)
+        return await feeds_repo.get_by_id(id_=feed_id)
     except EntityDoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
