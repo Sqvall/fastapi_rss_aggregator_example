@@ -1,8 +1,8 @@
 import copy
 from typing import List, Optional
 
-from sqlalchemy import func, update
-from sqlalchemy.engine import Result
+from sqlalchemy import func, update, insert, delete
+from sqlalchemy.engine import ChunkedIteratorResult, CursorResult
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
 
@@ -20,19 +20,21 @@ class FeedsRepository(BaseRepository):
             name: str,
             can_updated: bool
     ) -> Feed:
-        new_feed = Feed(
-            source_url=str(source_url),
+
+        stmt = insert(Feed).values(
+            source_url=source_url,
             name=name,
             can_updated=can_updated,
-        )
-        self._session.add(new_feed)
+        ).returning(Feed)
 
+        result: CursorResult = await self._session.execute(stmt)
         await self._session.commit()
 
-        return new_feed
+        return result.first()
 
     async def delete(self, *, feed: Feed):
-        await self._session.delete(feed)
+        stmt = delete(Feed).where(Feed.id == feed.id)
+        await self._session.execute(stmt)
         await self._session.commit()
 
     async def update(
@@ -45,29 +47,23 @@ class FeedsRepository(BaseRepository):
             title: Optional[str] = None,
             description: Optional[str] = None,
     ) -> Feed:
-        updated_feed = copy.deepcopy(feed)
-
-        updated_feed.source_url = source_url or feed.source_url
-        updated_feed.name = name or feed.name
-        updated_feed.can_updated = can_updated if can_updated is not None else feed.can_updated
-        updated_feed.title = title or feed.title
-        updated_feed.description = description or feed.description
 
         stmt = update(Feed).where(Feed.id == feed.id).values(
-            source_url=updated_feed.source_url,
-            name=updated_feed.name,
-            can_updated=updated_feed.can_updated,
-            title=updated_feed.title,
-            description=updated_feed.description,
-        )
+            source_url=source_url or feed.source_url,
+            name=name or feed.name,
+            can_updated=can_updated if can_updated is not None else feed.can_updated,
+            title=title or feed.title,
+            description=description or feed.description,
+        ).returning(Feed)
 
-        await self._session.execute(stmt)
+        result: CursorResult = await self._session.execute(stmt)
+        await self._session.commit()
 
-        return updated_feed
+        return result.first()
 
     async def get_by_id(self, *, id_: int) -> Feed:
         stmt = select(Feed).where(Feed.id == id_)
-        result: Result = await self._session.execute(stmt)
+        result: ChunkedIteratorResult = await self._session.execute(stmt)
 
         try:
             return result.scalar_one()
@@ -76,7 +72,7 @@ class FeedsRepository(BaseRepository):
 
     async def get_by_source_url(self, *, source_url: str) -> Feed:
         stmt = select(Feed).where(Feed.source_url == source_url)
-        result: Result = await self._session.execute(stmt)
+        result: ChunkedIteratorResult = await self._session.execute(stmt)
 
         try:
             return result.scalar_one()
@@ -85,12 +81,12 @@ class FeedsRepository(BaseRepository):
 
     async def get_feeds(self, *, limit=20, offset=0) -> List[Feed]:
         stmt = select(Feed).order_by(-Feed.id).offset(offset).limit(limit)
-        result: Result = await self._session.execute(stmt)
+        result: ChunkedIteratorResult = await self._session.execute(stmt)
 
         return result.scalars().all()
 
     async def get_total_count(self) -> int:
         stmt = select(func.count(Feed.id))
-        result: Result = await self._session.execute(stmt)
+        result: ChunkedIteratorResult = await self._session.execute(stmt)
 
         return result.scalar_one()
