@@ -7,8 +7,6 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.feeds import FeedInCreate
-
 environ['TESTING'] = 'True'  # noqa
 
 from app.db.database import async_session
@@ -16,6 +14,7 @@ from app.core import config
 from app.main import get_application
 from app.models.feeds import Feed
 from app.db.repositories.feeds import FeedsRepository
+from app.schemas.feeds import FeedInCreate
 
 assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from application"
 
@@ -30,6 +29,9 @@ def event_loop():
 
 @pytest.fixture(autouse=True)
 def apply_migrations() -> None:
+    # alembic_cfg = alembic.config.Config('alembic.ini')
+    # alembic_cfg.set_section_option("logger_alembic", "level", "ERROR")
+    # alembic.command.upgrade(alembic_cfg, 'head')
     alembic.config.main(argv=["upgrade", "head"])
     yield
     alembic.config.main(argv=["downgrade", "base"])
@@ -72,3 +74,8 @@ async def create_50_feeds(session):
             name=f'Some name {i}',
             can_updated=True if i % 2 else False,
         )
+
+# @pytest.fixture
+# async def test_tag(session: AsyncSession) -> Tag:
+#     ...
+    # new_tag = await TagsRepository(session).create(name='Test tag')

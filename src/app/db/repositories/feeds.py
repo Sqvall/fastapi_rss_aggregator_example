@@ -21,16 +21,16 @@ class FeedsRepository(BaseRepository):
             can_updated: bool
     ) -> Feed:
 
-        stmt = insert(Feed).values(
+        new_feed = Feed(
             source_url=source_url,
             name=name,
             can_updated=can_updated,
-        ).returning(Feed)
+        )
 
-        result: CursorResult = await self._session.execute(stmt)
+        self._session.add(new_feed)
         await self._session.commit()
 
-        return result.first()
+        return new_feed
 
     async def delete(self, *, feed: Feed):
         stmt = delete(Feed).where(Feed.id == feed.id)
@@ -48,18 +48,16 @@ class FeedsRepository(BaseRepository):
             description: Optional[str] = None,
     ) -> Feed:
 
-        stmt = update(Feed).where(Feed.id == feed.id).values(
-            source_url=source_url or feed.source_url,
-            name=name or feed.name,
-            can_updated=can_updated if can_updated is not None else feed.can_updated,
-            title=title or feed.title,
-            description=description or feed.description,
-        ).returning(Feed)
+        feed.source_url = source_url or feed.source_url
+        feed.name = name or feed.name
+        feed.can_updated = can_updated if can_updated is not None else feed.can_updated
+        feed.title = title or feed.title
+        feed.description = description or feed.description
 
-        result: CursorResult = await self._session.execute(stmt)
+        self._session.add(feed)
         await self._session.commit()
 
-        return result.first()
+        return feed
 
     async def get_by_id(self, *, id_: int) -> Feed:
         stmt = select(Feed).where(Feed.id == id_)

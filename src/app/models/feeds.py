@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Text, Boolean, Integer
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 
 from app.db.database import Base
 
@@ -13,12 +13,10 @@ class Feed(Base):
     can_updated = Column(Boolean, default=True)
     title = Column(String, default='')
     description = Column(Text, default='')
+    entries = relationship('Entry', back_populates='feed')
 
     @validates('name')
     def validate_name(self, _, name) -> str:
         if len(name) < 2:
             raise ValueError('\'name\' too short, this value has at least 2 characters.')
         return name
-
-    def __str__(self):
-        return f'<"source_url": "{self.source_url}", "name": "{self.name}">'

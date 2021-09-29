@@ -39,7 +39,7 @@ async def test_create_raise_400_if_feed_with_source_url_exist(client, app, test_
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
-async def test_retrieve_empty_list_when_no_one_feed_created(client, app):
+async def test_get_empty_list_when_no_one_feed_created(client, app):
     response = await client.get(app.url_path_for('feeds:list-feeds'))
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {'items': [], 'itemsTotal': 0}
@@ -122,7 +122,7 @@ async def test_get_feed_by_id_return_404_if_feed_not_exist(client, app):
 async def test_update_feed(client, app, session, test_feed: Feed):
     # TODO: Need more test cases (not requirement, None, ...etc)
     updated_feed_data = {
-        "sourceUrl": "https://example.com",
+        "sourceUrl": "https://example.com/updated",
         "name": "Updated Test Name",
         "canUpdated": False,
         "title": "Updated Title",
@@ -137,6 +137,26 @@ async def test_update_feed(client, app, session, test_feed: Feed):
     updated_feed_data["id"] = test_feed.id
 
     assert response.json() == updated_feed_data
+
+
+@pytest.mark.parametrize(
+    'field, value',
+    [
+        ('sourceUrl', 'https://example.com/updated13'),
+        ('name', 'Some test name for update'),
+        ('canUpdated', False),
+        ('canUpdated', True),
+        ('title', 'Some test title 13'),
+        ('description', 'Some test desc 13'),
+    ]
+)
+async def test_update_feed_for_one_field(client, app, session, test_feed: Feed, field, value):
+    response = await client.put(
+        url=app.url_path_for('feeds:update-feed', feed_id=str(test_feed.id)),
+        json={"feed": {field: value}}
+    )
+
+    assert response.json()[field] == value
 
 
 async def test_update_raise_400_if_feed_with_source_url_exist(client, app, session, test_feed: Feed):
