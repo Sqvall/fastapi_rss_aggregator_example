@@ -4,7 +4,7 @@ from starlette import status
 from app.api.dependencies.database import get_repository
 from app.db.errors import EntityDoesNotExist
 from app.db.repositories.feeds import FeedsRepository
-from app.models.feeds import Feed
+from app.models import Feed
 from app.resources import strings
 
 

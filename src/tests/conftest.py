@@ -5,6 +5,7 @@ import alembic.config
 import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
+from pytest_factoryboy import register
 from sqlalchemy.ext.asyncio import AsyncSession
 
 environ['TESTING'] = 'True'  # noqa
@@ -15,8 +16,16 @@ from app.main import get_application
 from app.models.feeds import Feed
 from app.db.repositories.feeds import FeedsRepository
 from app.schemas.feeds import FeedInCreate
+from app.db.repositories.tags import TagsRepository
+from app.models import Tag
+from tests.factories import TagFactory, FeedFactory, EntryFactory
 
 assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from application"
+
+
+register(TagFactory)
+register(FeedFactory)
+register(EntryFactory)
 
 
 @pytest.fixture(scope='session')
@@ -75,7 +84,8 @@ async def create_50_feeds(session):
             can_updated=True if i % 2 else False,
         )
 
-# @pytest.fixture
-# async def test_tag(session: AsyncSession) -> Tag:
-#     ...
-    # new_tag = await TagsRepository(session).create(name='Test tag')
+
+@pytest.fixture
+async def test_tag(session: AsyncSession) -> Tag:
+    new_tag = await TagsRepository(session).create(name='Test tag')
+    return new_tag

@@ -33,3 +33,11 @@ class FeedOut(CamelModel):
 
     class Config:
         orm_mode = True
+
+
+class FeedShortOut(CamelModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True

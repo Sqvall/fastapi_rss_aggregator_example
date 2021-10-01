@@ -11,9 +11,7 @@ from app.core.config import DB_URL, TESTING
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from app.db.database import Base
-from app.models.entries import Entry  # noqa
-from app.models.feeds import Feed  # noqa
-from app.models.tags import Tag  # noqa
+from app import models  # noqa
 
 config = context.config
 # Interpret the config file for Python logging.
