@@ -13,13 +13,18 @@ class Entry(Base):
     title = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     author = Column(String, nullable=True)
-    published_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now())
+    published_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now())
 
     feed_id = Column(Integer, ForeignKey('feeds.id'))
     feed = relationship('Feed', back_populates="entries")
 
-    tags = relationship("Tag", secondary="entries_tags", backref="entries")
+    tags = relationship('Tag', secondary="entries_tags", backref="entries")
+
+    __mapper_args__ = {"eager_defaults": True}
+
+    def __repr__(self):
+        return f'<Entry(id={self.id!r}, link={self.link!r}, feed={self.feed.name!r})>'
 
 
 entries_tags_table = Table(

@@ -20,3 +20,6 @@ class Feed(Base):
         if len(name) < 2:
             raise ValueError('\'name\' too short, this value has at least 2 characters.')
         return name
+
+    def __repr__(self):
+        return f'<Feed(id={self.id!r}, source_url={self.source_url!r}, name={self.name!r})>'
