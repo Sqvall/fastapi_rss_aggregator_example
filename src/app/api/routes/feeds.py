@@ -73,7 +73,7 @@ async def list_feed(
         limit: int = Query(DEFAULT_FEEDS_LIMIT, ge=1),
         offset: int = Query(DEFAULT_FEEDS_OFFSET, ge=0),
 ):
-    feeds = await feed_repo.get_feeds(limit=limit, offset=offset)
+    feeds = await feed_repo.list_feeds(limit=limit, offset=offset)
     total_count = await feed_repo.get_total_count()
     return PaginatedResponse[FeedOut](items=feeds, items_total=total_count)
 

@@ -18,14 +18,14 @@ from app.db.repositories.feeds import FeedsRepository
 from app.schemas.feeds import FeedInCreate
 from app.db.repositories.tags import TagsRepository
 from app.models import Tag
-from tests.factories import TagFactory, FeedFactory, EntryFactory
+from tests import factories
 
 assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from application"
 
-
-register(TagFactory)
-register(FeedFactory)
-register(EntryFactory)
+register(factories.TagFactory)
+register(factories.FeedFactory)
+register(factories.EntryBaseFactory)
+register(factories.EntryRelatedFactory)
 
 
 @pytest.fixture(scope='session')

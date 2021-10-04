@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Query, Depends
 from starlette import status
 
@@ -19,10 +21,12 @@ router = APIRouter()
 )
 async def list_entry(
         entry_repo: EntriesRepository = Depends(get_repository(EntriesRepository)),
+        tag_ids: List[int] = Query(None),
+        feed_id: int = Query(None),
         limit: int = Query(DEFAULT_ENTRIES_LIMIT, ge=1),
         offset: int = Query(DEFAULT_ENTRIES_OFFSET, ge=0),
 ):
-    entries = await entry_repo.get_entries(limit=limit, offset=offset)
+    entries = await entry_repo.list_entries(tag_ids=tag_ids, feed_id=feed_id, limit=limit, offset=offset)
     total_count = await entry_repo.get_total_count()
     return PaginatedResponse[EntryOut](items=entries, items_total=total_count)
 

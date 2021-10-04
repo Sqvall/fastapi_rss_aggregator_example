@@ -22,7 +22,7 @@ class TagFactory(factory.Factory):
     name = factory.Sequence(lambda n: faker.word() + str(n))
 
 
-class EntryFactory(factory.Factory):
+class EntryBaseFactory(factory.Factory):
     class Meta:
         model = Entry
 
@@ -33,5 +33,8 @@ class EntryFactory(factory.Factory):
     author = faker.name()
     published_at = factory.Sequence(lambda n: faker.date_time())
     updated_at = factory.Sequence(lambda n: faker.date_time())
+
+
+class EntryRelatedFactory(EntryBaseFactory):
     feed = factory.SubFactory(FeedFactory)
     tags = factory.List([factory.SubFactory(TagFactory) for _ in range(5)])
