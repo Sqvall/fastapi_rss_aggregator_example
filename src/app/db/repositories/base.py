@@ -1,10 +1,13 @@
+from dataclasses import dataclass
+from typing import ClassVar, Type
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.db.database import Base
 
+
+@dataclass
 class BaseRepository:
-    def __init__(self, db_session: AsyncSession):
-        self._db_session = db_session
+    model: ClassVar[Type[Base]] = NotImplementedError
 
-    @property
-    def session(self) -> AsyncSession:
-        return self._db_session
+    _session: AsyncSession

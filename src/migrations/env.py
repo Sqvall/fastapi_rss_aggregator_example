@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from logging.config import fileConfig
 
 from alembic import context
@@ -6,22 +7,26 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app.core.config import DB_URL
+from app.core.config import DB_URL, TESTING
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-from app.models.feeds import Feed
+from app.db.database import Base
+from app import models  # noqa
 
 config = context.config
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
+
+if TESTING:
+    logging.getLogger('alembic').setLevel(logging.WARN)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = [Feed.__table__.metadata]
+# target_metadata = [Feed.__table__.metadata, Tag.__table__.metadata, Entry.__table__.metadata]
+target_metadata = [Base.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
