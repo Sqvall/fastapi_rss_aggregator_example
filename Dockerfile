@@ -10,8 +10,8 @@ COPY ./src ./
 
 RUN pip install --upgrade pip && \
     pip install poetry==1.1.10 && \
-    poetry config virtualenvs.in-project true && \
-    poetry install --no-dev
+    poetry config virtualenvs.create false && \
+    poetry install --no-interaction --no-ansi
 
 RUN groupadd -r rss_uviconr && \
     useradd -r -g rss_uviconr rss_uviconr
