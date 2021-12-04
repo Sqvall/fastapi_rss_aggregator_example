@@ -3,9 +3,9 @@ from typing import List
 
 from pydantic import HttpUrl, validator
 
-from app.schemas.common import CamelModel
-from app.schemas.feeds import FeedShortOut
-from app.schemas.tags import TagOut
+from schemas.common import CamelModel
+from schemas.feeds import FeedShortOut
+from schemas.tags import TagOut
 
 DEFAULT_ENTRIES_LIMIT = 20
 DEFAULT_ENTRIES_OFFSET = 0

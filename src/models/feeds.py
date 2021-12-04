@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, Text, Boolean, Integer
 from sqlalchemy.orm import validates, relationship
 
-from app.db.database import Base
+from db.database import Base
 
 
 class Feed(Base):

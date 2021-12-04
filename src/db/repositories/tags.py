@@ -1,6 +1,6 @@
-from app.db.repositories.base import BaseRepository
-from app.models import Tag
-from app.models.entries import Entry
+from db.repositories.base import BaseRepository
+from models import Tag
+from models.entries import Entry
 
 
 class TagsRepository(BaseRepository):

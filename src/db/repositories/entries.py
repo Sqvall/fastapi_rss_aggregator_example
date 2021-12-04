@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from typing import List
 
-from sqlalchemy import func, desc, distinct
+from sqlalchemy import func, desc
 from sqlalchemy.engine import ChunkedIteratorResult
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import Select
 
-from app.db.errors import EntityDoesNotExist
-from app.db.repositories.base import BaseRepository
-from app.models import Tag
-from app.models.entries import Entry
+from db.errors import EntityDoesNotExist
+from db.repositories.base import BaseRepository
+from models import Tag
+from models.entries import Entry
 
 
 class EntriesRepository(BaseRepository):

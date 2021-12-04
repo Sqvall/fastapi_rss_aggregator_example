@@ -9,7 +9,7 @@ from starlette.datastructures import Secret, CommaSeparatedStrings
 uvicorn_logger = logging.getLogger("uvicorn")
 uvicorn_logger.propagate = False
 
-env_path = os.path.join(pathlib.Path(__file__).parent.absolute(), '../../../.env')
+env_path = os.path.join(pathlib.Path(__file__).parent.parent.absolute(), '.env')
 
 config = Config(env_path)
 

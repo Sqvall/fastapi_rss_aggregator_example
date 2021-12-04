@@ -1,11 +1,11 @@
 from fastapi import Path, Depends, HTTPException
 from starlette import status
 
-from app.api.dependencies.database import get_repository
-from app.db.errors import EntityDoesNotExist
-from app.db.repositories.feeds import FeedsRepository
-from app.models import Feed
-from app.resources import strings
+from api.dependencies.database import get_repository
+from db.errors import EntityDoesNotExist
+from db.repositories.feeds import FeedsRepository
+from models import Feed
+from resources import strings
 
 
 async def get_feed_by_id_from_path(

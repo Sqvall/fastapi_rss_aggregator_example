@@ -3,7 +3,7 @@ from typing import ClassVar, Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import Base
+from db.database import Base
 
 
 @dataclass

@@ -1,4 +1,4 @@
-from app.schemas.common import CamelModel
+from schemas.common import CamelModel
 
 
 class TagOut(CamelModel):

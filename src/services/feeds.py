@@ -1,7 +1,7 @@
 from pydantic import HttpUrl
 
-from app.db.errors import EntityDoesNotExist
-from app.db.repositories.feeds import FeedsRepository
+from db.errors import EntityDoesNotExist
+from db.repositories.feeds import FeedsRepository
 
 
 async def check_feed_with_source_url_exists(feed_repo: FeedsRepository, source_url: HttpUrl) -> bool:

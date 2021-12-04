@@ -3,8 +3,8 @@ from typing import Type, Callable, AsyncGenerator
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.database import async_session
-from app.db.repositories.base import BaseRepository
+from db.database import async_session
+from db.repositories.base import BaseRepository
 
 
 async def _get_session() -> AsyncGenerator[AsyncSession, None]:

@@ -10,17 +10,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 environ['TESTING'] = 'True'  # noqa
 
-from app.db.database import async_session
-from app.core import config
-from app.main import get_application
-from app.models.feeds import Feed
-from app.db.repositories.feeds import FeedsRepository
-from app.schemas.feeds import FeedInCreate
-from app.db.repositories.tags import TagsRepository
-from app.models import Tag
+from db.database import async_session
+from core import config
+from main import get_application
+from models.feeds import Feed
+from db.repositories import FeedsRepository
+from schemas.feeds import FeedInCreate
+from db.repositories import TagsRepository
+from models import Tag
 from tests import factories
 
-assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from application"
+assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from srclication"
 
 register(factories.TagFactory)
 register(factories.FeedFactory)

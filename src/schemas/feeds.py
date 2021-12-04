@@ -2,8 +2,8 @@ from typing import Optional
 
 from pydantic import Field, HttpUrl
 
-from app.schemas.common import CamelModel
-from app.resources import strings
+from schemas.common import CamelModel
+from resources import strings
 
 DEFAULT_FEEDS_LIMIT = 20
 DEFAULT_FEEDS_OFFSET = 0
