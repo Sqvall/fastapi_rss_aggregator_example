@@ -1,7 +1,7 @@
 import factory
 from faker import Faker
 
-from app.models import Tag, Feed, Entry
+from models import Tag, Feed, Entry
 
 faker = Faker()
 

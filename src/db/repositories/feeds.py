@@ -5,9 +5,9 @@ from sqlalchemy.engine import ChunkedIteratorResult
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
 
-from app.db.errors import EntityDoesNotExist
-from app.db.repositories.base import BaseRepository
-from app.models.feeds import Feed
+from db.errors import EntityDoesNotExist
+from db.repositories.base import BaseRepository
+from models.feeds import Feed
 
 
 class FeedsRepository(BaseRepository):

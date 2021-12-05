@@ -5,19 +5,17 @@ ENV PYTHONUNBUFFERED 1
 RUN apt-get update && \
     apt-get install -y libpq-dev gcc
 
-WORKDIR /src
-COPY ./src ./
+WORKDIR /app
+COPY ./src /app
 
 RUN pip install --upgrade pip && \
     pip install poetry==1.1.10 && \
-    poetry config virtualenvs.in-project true && \
-    poetry install --no-dev
+    poetry config virtualenvs.create false && \
+    poetry install
 
-RUN groupadd -r rss_uviconr && \
-    useradd -r -g rss_uviconr rss_uviconr
+RUN groupadd -r rss_uvicorn && \
+    useradd -r -g rss_uvicorn rss_uvicorn
 
-USER rss_uviconr
-WORKDIR /src
-COPY entrypoint-app.sh ./
+USER rss_uvicorn
 
 EXPOSE 8020

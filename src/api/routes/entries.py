@@ -3,12 +3,12 @@ from typing import List
 from fastapi import APIRouter, Query, Depends
 from starlette import status
 
-from app.api.dependencies.database import get_repository
-from app.api.dependencies.entry import get_entry_by_id_from_path
-from app.db.repositories.entries import EntriesRepository
-from app.models import Entry
-from app.schemas.common import PaginatedResponse
-from app.schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT, DEFAULT_ENTRIES_OFFSET
+from api.dependencies.database import get_repository
+from api.dependencies.entry import get_entry_by_id_from_path
+from db.repositories.entries import EntriesRepository
+from models import Entry
+from schemas.common import PaginatedResponse
+from schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT, DEFAULT_ENTRIES_OFFSET
 
 router = APIRouter()
 

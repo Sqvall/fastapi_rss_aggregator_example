@@ -3,10 +3,10 @@ from typing import List
 import pytest
 from starlette import status
 
-from app.db.repositories.entries import EntriesRepository
-from app.db.repositories.feeds import FeedsRepository
-from app.models import Entry
-from app.schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT
+from db.repositories import EntriesRepository
+from db.repositories import FeedsRepository
+from models import Entry
+from schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT
 from tests.factories import EntryRelatedFactory, EntryBaseFactory, TagFactory, FeedFactory
 from tests.testing_helpers import destructuring_pagination
 

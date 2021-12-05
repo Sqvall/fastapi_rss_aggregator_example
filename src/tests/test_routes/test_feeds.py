@@ -1,10 +1,10 @@
 import pytest
 from starlette import status
 
-from app.db.errors import EntityDoesNotExist
-from app.db.repositories.feeds import FeedsRepository
-from app.models.feeds import Feed
-from app.schemas.feeds import FeedOut, DEFAULT_FEEDS_LIMIT
+from db.errors import EntityDoesNotExist
+from db.repositories import FeedsRepository
+from models.feeds import Feed
+from schemas.feeds import FeedOut, DEFAULT_FEEDS_LIMIT
 from tests.testing_helpers import destructuring_pagination
 
 pytestmark = pytest.mark.asyncio
