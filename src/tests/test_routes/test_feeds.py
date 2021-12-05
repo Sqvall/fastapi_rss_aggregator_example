@@ -27,13 +27,14 @@ async def test_can_create_feed(client, app, session):
     assert received_feed_out == received_feed_from_db_out
 
 
-async def test_create_raise_400_if_feed_with_source_url_exist(client, app, test_feed: Feed):
+async def test_create_raise_400_if_feed_with_source_url_exist(client, app):
     new_feed = {
-        "sourceUrl": test_feed.source_url,
+        "sourceUrl": 'https://example.com/test_feed',
         "name": "Test Name 13",
         "canUpdated": False,
     }
 
+    await client.post(url=app.url_path_for('feeds:create-feed'), json=new_feed)
     response = await client.post(url=app.url_path_for('feeds:create-feed'), json=new_feed)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -56,6 +57,7 @@ async def test_get_list_feed_correct_data(client, app, session):
     await feed_rep.create(**exp_data[2])
     await feed_rep.create(**exp_data[1])
     await feed_rep.create(**exp_data[0])
+    await session.commit()
 
     response = await client.get(app.url_path_for('feeds:list-feeds'))
     items, items_total = destructuring_pagination(response.json())
@@ -170,6 +172,7 @@ async def test_update_raise_400_if_feed_with_source_url_exist(client, app, sessi
     }
 
     new_feed = await FeedsRepository(session).create(**new_feed)
+    await session.commit()
 
     response = await client.put(
         url=app.url_path_for('feeds:update-feed', feed_id=str(new_feed.id)),

@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from sqlalchemy import func, delete
-from sqlalchemy.engine import ChunkedIteratorResult
+from sqlalchemy import func, delete, insert
+from sqlalchemy.engine import ChunkedIteratorResult, CursorResult
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
 
@@ -20,16 +20,12 @@ class FeedsRepository(BaseRepository):
             name: str,
             can_updated: bool
     ) -> Feed:
+        stmt = insert(Feed).values(source_url=source_url, name=name, can_updated=can_updated)
 
-        new_feed = self.model(
-            source_url=source_url,
-            name=name,
-            can_updated=can_updated,
-        )
-
-        self._session.add(new_feed)
+        result: CursorResult = await self._session.execute(stmt)
         await self._session.flush()
 
+        new_feed = await self.get_by_id(id_=result.inserted_primary_key[0])
         return new_feed
 
     async def delete(self, *, feed: Feed):

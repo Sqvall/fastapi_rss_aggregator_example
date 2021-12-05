@@ -72,6 +72,7 @@ async def test_feed(session: AsyncSession) -> Feed:
     )
 
     new_feed = await FeedsRepository(session).create(**feed.dict())
+    await session.commit()
     return new_feed
 
 
@@ -83,9 +84,11 @@ async def create_50_feeds(session):
             name=f'Some name {i}',
             can_updated=True if i % 2 else False,
         )
+    await session.commit()
 
 
 @pytest.fixture
 async def test_tag(session: AsyncSession) -> Tag:
     new_tag = await TagsRepository(session).create(name='Test tag')
+    await session.commit()
     return new_tag

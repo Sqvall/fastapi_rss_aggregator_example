@@ -20,13 +20,13 @@ class EntriesRepository(BaseRepository):
 
     async def add(self, entry: Entry) -> int:
         self._session.add(entry)
-        await self._session.commit()
+        await self._session.flush()
 
         return entry.id
 
     async def add_all(self, entries: List[Entry]) -> List[int]:
         self._session.add_all(entries)
-        await self._session.commit()
+        await self._session.flush()
 
         return [entry.id for entry in entries]
 

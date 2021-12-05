@@ -15,6 +15,6 @@ class TagsRepository(BaseRepository):
         )
 
         self._session.add(new_tag)
-        await self._session.commit()
+        await self._session.flush()
 
         return new_tag
