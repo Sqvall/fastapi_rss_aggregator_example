@@ -1,19 +1,15 @@
-import time
-
-import httpx
 from fastapi import APIRouter, Depends, Body, HTTPException, Query
 from starlette import status
 from starlette.responses import Response
 
-from app.api.dependencies.database import get_repository
-from app.api.dependencies.feeds import get_feed_by_id_from_path
-from app.db.repositories.feeds import FeedsRepository
-from app.schemas.common import PaginatedResponse
-from app.models.feeds import Feed
-from app.resources import strings
-from app.schemas.feeds import FeedOut, FeedInCreate, FeedInUpdate, DEFAULT_FEEDS_LIMIT, DEFAULT_FEEDS_OFFSET
-from app.services.entries import collect_entries_for_feed
-from app.services.feeds import check_feed_with_source_url_exists
+from api.dependencies.database import get_repository
+from api.dependencies.feeds import get_feed_by_id_from_path
+from db.repositories.feeds import FeedsRepository
+from models.feeds import Feed
+from resources import strings
+from schemas.common import PaginatedResponse
+from schemas.feeds import FeedOut, FeedInCreate, FeedInUpdate, DEFAULT_FEEDS_LIMIT, DEFAULT_FEEDS_OFFSET
+from services.feeds import check_feed_with_source_url_exists
 
 router = APIRouter()
 
