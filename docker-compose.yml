@@ -25,5 +25,22 @@ services:
     volumes:
       - rss_db_postgres_data:/var/lib/postgresql/data:cached
 
+  redis:
+    image: redis
+    ports:
+      - '6380:6379'
+
+  worker:
+    build: .
+    command: poetry run celery --app app.tasks worker --loglevel=DEBUG -Q main-queue -c 1
+
+  flower:
+    image: mher/flower
+    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    ports:
+      - '5555:5555'
+    depends_on:
+      - redis
+
 volumes:
   rss_db_postgres_data:
