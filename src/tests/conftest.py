@@ -14,9 +14,9 @@ from db.database import async_session
 from core import config
 from main import get_application
 from models.feeds import Feed
-from db.repositories import FeedsRepository
+from db.repositories.feeds import FeedsRepository
 from schemas.feeds import FeedInCreate
-from db.repositories import TagsRepository
+from db.repositories.tags import TagsRepository
 from models import Tag
 from tests import factories
 

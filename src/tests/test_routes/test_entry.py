@@ -3,8 +3,8 @@ from typing import List
 import pytest
 from starlette import status
 
-from db.repositories import EntriesRepository
-from db.repositories import FeedsRepository
+from db.repositories.entries import EntriesRepository
+from db.repositories.feeds import FeedsRepository
 from models import Entry
 from schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT
 from tests.factories import EntryRelatedFactory, EntryBaseFactory, TagFactory, FeedFactory

@@ -36,7 +36,12 @@ services:
 
   worker:
     build: .
-    command: poetry run celery --app app.tasks worker --loglevel=DEBUG -Q main-queue -c 1
+    command: celery -A celery_app worker --loglevel=INFO -Q main-queue -c 1
+    depends_on:
+      - app
+      - redis
+    volumes:
+      - ./src:/app
 
   flower:
     image: mher/flower

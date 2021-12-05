@@ -28,14 +28,14 @@ class FeedsRepository(BaseRepository):
         )
 
         self._session.add(new_feed)
-        await self._session.commit()
+        await self._session.flush()
 
         return new_feed
 
     async def delete(self, *, feed: Feed):
         stmt = delete(self.model).where(self.model.id == feed.id)
         await self._session.execute(stmt)
-        await self._session.commit()
+        await self._session.flush()
 
     async def update(
             self,
@@ -54,7 +54,7 @@ class FeedsRepository(BaseRepository):
         feed.description = description or feed.description
 
         self._session.add(feed)
-        await self._session.commit()
+        await self._session.flush()
 
         return feed
 

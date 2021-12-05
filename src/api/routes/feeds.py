@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, Depends, Body, HTTPException, Query
 from starlette import status
 from starlette.responses import Response
@@ -9,6 +11,7 @@ from models.feeds import Feed
 from resources import strings
 from schemas.common import PaginatedResponse
 from schemas.feeds import FeedOut, FeedInCreate, FeedInUpdate, DEFAULT_FEEDS_LIMIT, DEFAULT_FEEDS_OFFSET
+from services.entries import collect_entries_for_feed
 from services.feeds import check_feed_with_source_url_exists
 
 router = APIRouter()
@@ -34,9 +37,10 @@ async def create_new_feed(
         name=feed.name,
         can_updated=feed.can_updated,
     )
+
     # if new_feeds.can_updated is True:
     #     start = time.time()
-    #     await collect_entries_for_feed(feed=new_feeds)
+    #     await collect_entries_for_feed(feed_repo=feed_repo, feed_id=new_feeds.id)
     #     end = time.time()
     #     print('Time: ', end - start)
 
