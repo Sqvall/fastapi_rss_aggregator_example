@@ -11,6 +11,7 @@ async def _get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session() as session:
         async with session.begin():
             yield session
+            await session.commit()
 
 
 def get_repository(repo_type: Type[BaseRepository]) -> Callable[[AsyncSession], BaseRepository]:

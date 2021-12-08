@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import HttpUrl, validator
 
@@ -15,13 +15,13 @@ class EntryOut(CamelModel):
     id: int
     link: HttpUrl
     feed: FeedShortOut
-    guid: str
-    title: str
-    description: str
-    author: str
+    guid: Optional[str]
+    title: Optional[str]
+    description: Optional[str]
+    author: Optional[str]
     published_at: datetime
     updated_at: datetime
-    tags: List[TagOut]
+    tags: Optional[List[TagOut]]
 
     @validator('published_at', 'updated_at', pre=True)
     def published_at_validate(cls, date):  # noqa

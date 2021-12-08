@@ -38,11 +38,11 @@ async def create_new_feed(
         can_updated=feed.can_updated,
     )
 
-    # if new_feeds.can_updated is True:
-    #     start = time.time()
-    #     await collect_entries_for_feed(feed_repo=feed_repo, feed_id=new_feeds.id)
-    #     end = time.time()
-    #     print('Time: ', end - start)
+    if new_feeds.can_updated is True:
+        start = time.time()
+        await collect_entries_for_feed(session=feed_repo._session, feed_id=new_feeds.id)
+        end = time.time()
+        print('Time: ', end - start)
 
     return new_feeds
 
