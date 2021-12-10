@@ -1,5 +1,6 @@
 import asyncio
 from os import environ
+from pathlib import Path
 
 import alembic.config
 import pytest
@@ -10,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 environ['TESTING'] = 'True'  # noqa
 
+from services import entries
 from db.database import async_session
 from core import config
 from main import get_application
@@ -92,3 +94,18 @@ async def test_tag(session: AsyncSession) -> Tag:
     new_tag = await TagsRepository(session).create(name='Test tag')
     await session.commit()
     return new_tag
+
+
+@pytest.fixture(scope='session')
+def valid_rss_resp():
+    fp = Path(__file__).resolve().parent / 'mock' / 'valid_rss_response.xml'
+    result = fp.open().read()
+    return result
+
+
+@pytest.fixture
+async def patched_response(valid_rss_resp, monkeypatch):
+    async def mocked_fetch_feed_data(*args, **kwargs):
+        return valid_rss_resp
+
+    monkeypatch.setattr(entries, 'fetch_feed_data', mocked_fetch_feed_data)

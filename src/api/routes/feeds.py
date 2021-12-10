@@ -32,19 +32,10 @@ async def create_new_feed(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=strings.FEED_WITH_THIS_SOURCE_URL_ALREADY_EXIST.format(feed.source_url)
         )
-    new_feeds = await feed_repo.create(
-        source_url=feed.source_url,
-        name=feed.name,
-        can_updated=feed.can_updated,
-    )
 
-    if new_feeds.can_updated is True:
-        start = time.time()
-        await collect_entries_for_feed(session=feed_repo._session, feed_id=new_feeds.id)
-        end = time.time()
-        print('Time: ', end - start)
+    new_feed = await collect_entries_for_feed(feed=feed)
 
-    return new_feeds
+    return new_feed
 
 
 @router.put(
@@ -68,8 +59,8 @@ async def update_feed(
             )
 
     updated_feed = await feed_repo.update(
-        feed=current_feed,
-        **feed_updated.dict()
+        feed_id=current_feed.id,
+        **feed_updated.dict(exclude_unset=True)
     )
     return updated_feed
 

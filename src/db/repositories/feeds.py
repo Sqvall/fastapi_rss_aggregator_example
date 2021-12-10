@@ -1,6 +1,6 @@
-from typing import List, Optional
+from typing import List
 
-from sqlalchemy import func, delete, insert
+from sqlalchemy import func, delete, insert, update
 from sqlalchemy.engine import ChunkedIteratorResult, CursorResult
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.future import select
@@ -21,11 +21,11 @@ class FeedsRepository(BaseRepository):
             can_updated: bool
     ) -> Feed:
         stmt = insert(Feed).values(source_url=source_url, name=name, can_updated=can_updated)
+        stmt = stmt.returning(*Feed.__table__.columns)
 
         result: CursorResult = await self._session.execute(stmt)
-        await self._session.flush()
 
-        new_feed = await self.get_by_id(id_=result.inserted_primary_key[0])
+        new_feed = result.first()
         return new_feed
 
     async def delete(self, *, feed: Feed):
@@ -36,23 +36,20 @@ class FeedsRepository(BaseRepository):
     async def update(
             self,
             *,
-            feed: Feed,
-            source_url: Optional[str] = None,
-            name: Optional[str] = None,
-            can_updated: Optional[bool] = None,
-            title: Optional[str] = None,
-            description: Optional[str] = None,
+            feed_id: id,
+            **kwargs,
     ) -> Feed:
-        feed.source_url = source_url or feed.source_url
-        feed.name = name or feed.name
-        feed.can_updated = can_updated if can_updated is not None else feed.can_updated
-        feed.title = title or feed.title
-        feed.description = description or feed.description
+        stmt = update(Feed).values()
+        for field, value in kwargs.items():
+            stmt = stmt.values({field: value})
 
-        self._session.add(feed)
-        await self._session.flush()
+        stmt = stmt.where(Feed.id == feed_id).returning(*Feed.__table__.columns)
 
-        return feed
+        result = await self._session.execute(stmt)
+
+        updated_feed = result.first()
+
+        return updated_feed
 
     async def get_by_id(self, *, id_: int) -> Feed:
         stmt = select(self.model).where(self.model.id == id_)

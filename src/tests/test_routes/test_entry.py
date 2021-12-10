@@ -168,12 +168,12 @@ async def test_list_entries_filtered_by_feed(
 
     feed1 = feed_factory.create()
     feed1 = await feed_repo.create(source_url=feed1.source_url, name=feed1.name, can_updated=feed1.can_updated)
-    first_entries_set = entry_base_factory.create_batch(first_entries_count, feed=feed1)
+    first_entries_set = entry_base_factory.create_batch(first_entries_count, feed_id=feed1.id)
     await entry_repo.add_all(first_entries_set)
 
     feed2 = feed_factory.create()
     feed2 = await feed_repo.create(source_url=feed2.source_url, name=feed2.name, can_updated=feed2.can_updated)
-    second_entries_set = entry_base_factory.create_batch(second_entries_count, feed=feed2)
+    second_entries_set = entry_base_factory.create_batch(second_entries_count, feed_id=feed2.id)
     await entry_repo.add_all(second_entries_set)
 
     await session.commit()

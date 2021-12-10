@@ -10,7 +10,7 @@ from tests.testing_helpers import destructuring_pagination
 pytestmark = pytest.mark.asyncio
 
 
-async def test_can_create_feed(client, app, session):
+async def test_can_create_feed(client, app, session, patched_response):
     feed_data = {
         "sourceUrl": "https://example.com",
         "name": "Test Name 01",
@@ -24,7 +24,10 @@ async def test_can_create_feed(client, app, session):
     feed_from_db = await FeedsRepository(session).get_by_source_url(source_url=received_feed_out.source_url)
     received_feed_from_db_out = FeedOut.from_orm(feed_from_db)
 
-    assert received_feed_out == received_feed_from_db_out
+    assert received_feed_out.id == received_feed_from_db_out.id
+    assert received_feed_out.source_url == received_feed_from_db_out.source_url
+    assert received_feed_out.name == received_feed_from_db_out.name
+    assert received_feed_out.can_updated == received_feed_from_db_out.can_updated
 
 
 async def test_create_raise_400_if_feed_with_source_url_exist(client, app):
