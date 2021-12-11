@@ -8,7 +8,7 @@ class Entry(Base):
     __tablename__ = "entries"
 
     id = Column(Integer, primary_key=True)
-    guid = Column(String, nullable=True)
+    guid = Column(String)
     link = Column(String)
     title = Column(String, nullable=True)
     description = Column(Text, nullable=True)

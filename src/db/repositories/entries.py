@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import func, desc
 from sqlalchemy.engine import ChunkedIteratorResult
@@ -35,18 +35,23 @@ class EntriesRepository(BaseRepository):
             *,
             tag_ids: List[int] = None,
             feed_id: int = None,
-            limit: int = 20,
+            guids: List[str] = None,
+            limit: Optional[int] = 20,
             offset: int = 0,
     ) -> List[Entry]:
         stmt: Select = (select(self.model)
                         .order_by(desc(self.model.updated_at))
                         .offset(offset)
-                        .limit(limit)
                         .options(selectinload(self.model.tags), selectinload(self.model.feed))
                         .distinct())
+        if limit:
+            stmt = stmt.limit(limit)
 
         if tag_ids:
             stmt = stmt.join(self.model.tags).where(Tag.id.in_(tag_ids))  # noqa
+
+        if guids:
+            stmt = stmt.where(self.model.guid.in_(guids))
 
         if feed_id:
             stmt = stmt.where(self.model.feed_id == feed_id)

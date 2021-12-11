@@ -1,10 +1,9 @@
 import logging
-from typing import Optional, List
+from typing import Optional
 
 import feedparser as fp
 import httpx
 
-from celery_app.tasks import example_task
 from db.database import async_session
 from db.repositories.entries import EntriesRepository
 from db.repositories.feeds import FeedsRepository
@@ -63,9 +62,29 @@ async def parse_feeds(*, feed_id: int = None):
 
             entries = []
 
-            for i in parse_data['items']:
-                entries.append(Entry(link=i['url'], feed_id=feed.id, title=i['title']))
+            entry_parsed_guids = [entry.get('guid') for entry in parse_data['items']]
 
-            await EntriesRepository(session).add_all(entries)
+            entries_repo = EntriesRepository(session)
 
-        await session.commit()
+            exists_entries_guid = [entry_db.guid for entry_db in
+                                   await entries_repo.list_entries(guids=entry_parsed_guids, limit=None)]
+
+            for entry in parse_data['items']:
+
+                if entry.get('guid') in exists_entries_guid:
+                    continue
+
+                entries.append(
+                    Entry(
+                        guid=entry.get('guid'),
+                        link=entry.get('link'),
+                        feed_id=feed.id,
+                        title=entry.get('title'),
+                        description=entry.get('summary'),
+                        author=entry.get('author'),
+                    )
+                )
+
+            await entries_repo.add_all(entries)
+
+            await session.commit()
