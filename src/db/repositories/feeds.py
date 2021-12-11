@@ -70,7 +70,9 @@ class FeedsRepository(BaseRepository):
             raise EntityDoesNotExist(f'Feed with source_url = {source_url} not exist.')
 
     async def list_feeds(self, *, limit=20, offset=0) -> List[Feed]:
-        stmt = select(self.model).order_by(-self.model.id).offset(offset).limit(limit)
+        stmt = select(self.model).order_by(-self.model.id).offset(offset)
+        if limit:
+            stmt = stmt.limit(limit)
         result: ChunkedIteratorResult = await self._session.execute(stmt)
 
         return result.scalars().all()

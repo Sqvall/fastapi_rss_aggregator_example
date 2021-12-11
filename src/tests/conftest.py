@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 environ['TESTING'] = 'True'  # noqa
 
-from services import entries
+from services import collector
 from db.database import async_session
 from core import config
 from main import get_application
@@ -108,4 +108,4 @@ async def patched_response(valid_rss_resp, monkeypatch):
     async def mocked_fetch_feed_data(*args, **kwargs):
         return valid_rss_resp
 
-    monkeypatch.setattr(entries, 'fetch_feed_data', mocked_fetch_feed_data)
+    monkeypatch.setattr(collector, 'fetch_feed_data', mocked_fetch_feed_data)
