@@ -10,9 +10,13 @@ services:
       - .env
     environment:
       DB_HOST: "db"
+    command: bash -c "while ! </dev/tcp/db/5432; do sleep 1; done;
+      alembic upgrade head;
+      uvicorn main:app --host=0.0.0.0 --port=8020;"
+    volumes:
+      - ./src:/app
     depends_on:
       - db
-    entrypoint: ./entrypoint-app.sh
 
   db:
     image: "postgres:13.3-alpine"
@@ -24,6 +28,28 @@ services:
       POSTGRES_DB: $DB_NAME
     volumes:
       - rss_db_postgres_data:/var/lib/postgresql/data:cached
+
+  redis:
+    image: redis
+    ports:
+      - '6380:6379'
+
+  worker:
+    build: .
+    command: celery -A celery_app worker --loglevel=INFO -Q main-queue -c 1
+    depends_on:
+      - app
+      - redis
+    volumes:
+      - ./src:/app
+
+  flower:
+    image: mher/flower
+    command: celery --broker=redis://redis:6379/0 flower --port=5555
+    ports:
+      - '5555:5555'
+    depends_on:
+      - redis
 
 volumes:
   rss_db_postgres_data:

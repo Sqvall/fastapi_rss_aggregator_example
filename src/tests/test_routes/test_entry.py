@@ -3,10 +3,10 @@ from typing import List
 import pytest
 from starlette import status
 
-from app.db.repositories.entries import EntriesRepository
-from app.db.repositories.feeds import FeedsRepository
-from app.models import Entry
-from app.schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT
+from db.repositories.entries import EntriesRepository
+from db.repositories.feeds import FeedsRepository
+from models import Entry
+from schemas.entries import EntryOut, DEFAULT_ENTRIES_LIMIT
 from tests.factories import EntryRelatedFactory, EntryBaseFactory, TagFactory, FeedFactory
 from tests.testing_helpers import destructuring_pagination
 
@@ -30,6 +30,7 @@ async def test_get_list_entries_correct_data(
     factory_data: List[Entry] = entry_related_factory.create_batch(10)
 
     await entry_rep.add_all(factory_data)
+    await session.commit()
 
     exp_data = [EntryOut.from_orm(entry) for entry in await entry_rep.list_entries(limit=20, offset=0)]
 
@@ -53,6 +54,8 @@ async def test_list_feed_default_pagination(
     factory_data: List[Entry] = entry_related_factory.create_batch(50)
 
     await entry_rep.add_all(factory_data)
+    await session.commit()
+
     exp_data = await entry_rep.list_entries(limit=1, offset=0)
 
     response = await client.get(app.url_path_for('entries:list-entries'))
@@ -82,6 +85,8 @@ async def test_list_feed_pagination(
     factory_data: List[Entry] = entry_related_factory.create_batch(feeds_count)
 
     await entry_rep.add_all(factory_data)
+    await session.commit()
+
     exp_data = await entry_rep.list_entries(**pagination)
 
     response = await client.get(app.url_path_for('entries:list-entries'), params=pagination)
@@ -122,6 +127,7 @@ async def test_get_list_entries_filtered_by_tags(
 
     entry_repo = EntriesRepository(session)
     await entry_repo.add_all(entries)
+    await session.commit()
 
     params_four_entries = {'tag_ids': [tag3.id]}
     response = await client.get(app.url_path_for('entries:list-entries'), params=params_four_entries)
@@ -162,13 +168,15 @@ async def test_list_entries_filtered_by_feed(
 
     feed1 = feed_factory.create()
     feed1 = await feed_repo.create(source_url=feed1.source_url, name=feed1.name, can_updated=feed1.can_updated)
-    first_entries_set = entry_base_factory.create_batch(first_entries_count, feed=feed1)
+    first_entries_set = entry_base_factory.create_batch(first_entries_count, feed_id=feed1.id)
     await entry_repo.add_all(first_entries_set)
 
     feed2 = feed_factory.create()
     feed2 = await feed_repo.create(source_url=feed2.source_url, name=feed2.name, can_updated=feed2.can_updated)
-    second_entries_set = entry_base_factory.create_batch(second_entries_count, feed=feed2)
+    second_entries_set = entry_base_factory.create_batch(second_entries_count, feed_id=feed2.id)
     await entry_repo.add_all(second_entries_set)
+
+    await session.commit()
 
     params_five_entries = {'feed_id': [feed1.id]}
     response = await client.get(app.url_path_for('entries:list-entries'), params=params_five_entries)
@@ -185,11 +193,14 @@ async def test_get_entry_by_id(
         session,
         client,
         app,
-        entry_related_factory: EntryRelatedFactory
+        entry_related_factory: EntryRelatedFactory,
 ):
     entry_rep = EntriesRepository(session)
+
     entry = entry_related_factory.create()
     entry_id = await entry_rep.add(entry)
+    await session.commit()
+
     entry_db = await entry_rep.get_by_id(id_=entry_id)
 
     response = await client.get(url=app.url_path_for('entries:get-entry', entry_id=str(entry_id)))

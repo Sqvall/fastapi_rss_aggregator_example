@@ -1,5 +1,6 @@
 import asyncio
 from os import environ
+from pathlib import Path
 
 import alembic.config
 import pytest
@@ -10,17 +11,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 environ['TESTING'] = 'True'  # noqa
 
-from app.db.database import async_session
-from app.core import config
-from app.main import get_application
-from app.models.feeds import Feed
-from app.db.repositories.feeds import FeedsRepository
-from app.schemas.feeds import FeedInCreate
-from app.db.repositories.tags import TagsRepository
-from app.models import Tag
+from services import collector
+from db.database import async_session
+from core import config
+from main import get_application
+from models.feeds import Feed
+from db.repositories.feeds import FeedsRepository
+from schemas.feeds import FeedInCreate
+from db.repositories.tags import TagsRepository
+from models import Tag
 from tests import factories
 
-assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from application"
+assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from srclication"
 
 register(factories.TagFactory)
 register(factories.FeedFactory)
@@ -72,6 +74,7 @@ async def test_feed(session: AsyncSession) -> Feed:
     )
 
     new_feed = await FeedsRepository(session).create(**feed.dict())
+    await session.commit()
     return new_feed
 
 
@@ -83,9 +86,26 @@ async def create_50_feeds(session):
             name=f'Some name {i}',
             can_updated=True if i % 2 else False,
         )
+    await session.commit()
 
 
 @pytest.fixture
 async def test_tag(session: AsyncSession) -> Tag:
     new_tag = await TagsRepository(session).create(name='Test tag')
+    await session.commit()
     return new_tag
+
+
+@pytest.fixture(scope='session')
+def valid_rss_resp():
+    fp = Path(__file__).resolve().parent / 'mock' / 'valid_rss_response.xml'
+    result = fp.open().read()
+    return result
+
+
+@pytest.fixture
+async def patched_response(valid_rss_resp, monkeypatch):
+    async def mocked_fetch_feed_data(*args, **kwargs):
+        return valid_rss_resp
+
+    monkeypatch.setattr(collector, 'fetch_feed_data', mocked_fetch_feed_data)

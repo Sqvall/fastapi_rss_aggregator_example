@@ -1,16 +1,16 @@
 import pytest
 from starlette import status
 
-from app.db.errors import EntityDoesNotExist
-from app.db.repositories.feeds import FeedsRepository
-from app.models.feeds import Feed
-from app.schemas.feeds import FeedOut, DEFAULT_FEEDS_LIMIT
+from db.errors import EntityDoesNotExist
+from db.repositories.feeds import FeedsRepository
+from models.feeds import Feed
+from schemas.feeds import FeedOut, DEFAULT_FEEDS_LIMIT
 from tests.testing_helpers import destructuring_pagination
 
 pytestmark = pytest.mark.asyncio
 
 
-async def test_can_create_feed(client, app, session):
+async def test_can_create_feed(client, app, session, patched_response):
     feed_data = {
         "sourceUrl": "https://example.com",
         "name": "Test Name 01",
@@ -24,16 +24,20 @@ async def test_can_create_feed(client, app, session):
     feed_from_db = await FeedsRepository(session).get_by_source_url(source_url=received_feed_out.source_url)
     received_feed_from_db_out = FeedOut.from_orm(feed_from_db)
 
-    assert received_feed_out == received_feed_from_db_out
+    assert received_feed_out.id == received_feed_from_db_out.id
+    assert received_feed_out.source_url == received_feed_from_db_out.source_url
+    assert received_feed_out.name == received_feed_from_db_out.name
+    assert received_feed_out.can_updated == received_feed_from_db_out.can_updated
 
 
-async def test_create_raise_400_if_feed_with_source_url_exist(client, app, test_feed: Feed):
+async def test_create_raise_400_if_feed_with_source_url_exist(client, app):
     new_feed = {
-        "sourceUrl": test_feed.source_url,
+        "sourceUrl": 'https://example.com/test_feed',
         "name": "Test Name 13",
         "canUpdated": False,
     }
 
+    await client.post(url=app.url_path_for('feeds:create-feed'), json=new_feed)
     response = await client.post(url=app.url_path_for('feeds:create-feed'), json=new_feed)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -56,6 +60,7 @@ async def test_get_list_feed_correct_data(client, app, session):
     await feed_rep.create(**exp_data[2])
     await feed_rep.create(**exp_data[1])
     await feed_rep.create(**exp_data[0])
+    await session.commit()
 
     response = await client.get(app.url_path_for('feeds:list-feeds'))
     items, items_total = destructuring_pagination(response.json())
@@ -170,6 +175,7 @@ async def test_update_raise_400_if_feed_with_source_url_exist(client, app, sessi
     }
 
     new_feed = await FeedsRepository(session).create(**new_feed)
+    await session.commit()
 
     response = await client.put(
         url=app.url_path_for('feeds:update-feed', feed_id=str(new_feed.id)),
