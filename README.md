@@ -1,4 +1,4 @@
-### Proget not complete, but you can use it for your ideas.
+###  The project is not finished, but you can use it for your ideas.
 
 ## Create local db
 
