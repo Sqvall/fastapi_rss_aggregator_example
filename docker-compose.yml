@@ -21,7 +21,7 @@ services:
   db:
     image: "postgres:13.3-alpine"
     ports:
-      - "5433:5432"
+      - "5436:5432"
     environment:
       POSTGRES_USER: $DB_USER
       POSTGRES_PASSWORD: $DB_PASSWORD
