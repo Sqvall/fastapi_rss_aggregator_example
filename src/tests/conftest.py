@@ -40,9 +40,6 @@ def event_loop():
 
 @pytest.fixture(autouse=True)
 def apply_migrations() -> None:
-    # alembic_cfg = alembic.config.Config('alembic.ini')
-    # alembic_cfg.set_section_option("logger_alembic", "level", "ERROR")
-    # alembic.command.upgrade(alembic_cfg, 'head')
     alembic.config.main(argv=["upgrade", "head"])
     yield
     alembic.config.main(argv=["downgrade", "base"])

@@ -6,16 +6,13 @@ RUN apt-get update && \
     apt-get install -y libpq-dev gcc
 
 WORKDIR /app
-COPY ./src /app
+COPY ./src/poetry.lock ./src/pyproject.toml /app/
 
 RUN pip install --upgrade pip && \
     pip install poetry==1.1.10 && \
     poetry config virtualenvs.create false && \
     poetry install
 
-RUN groupadd -r rss_uvicorn && \
-    useradd -r -g rss_uvicorn rss_uvicorn
-
-USER rss_uvicorn
+COPY ./src /app
 
 EXPOSE 8020

@@ -1,24 +1,23 @@
 version: '3.8'
 
 services:
-  app:
+  rss-app:
     build: .
+    container_name: rss_aggregator_fastapi_rss_app
     restart: on-failure
     ports:
       - "8020:8020"
     env_file:
       - .env
-    environment:
-      DB_HOST: "db"
-    command: bash -c "while ! </dev/tcp/db/5432; do sleep 1; done;
+    command: bash -c "while ! </dev/tcp/rss-db/5432; do sleep 1; done;
       alembic upgrade head;
       uvicorn main:app --host=0.0.0.0 --port=8020;"
     volumes:
       - ./src:/app
     depends_on:
-      - db
+      - rss-db
 
-  db:
+  rss-db:
     image: "postgres:13.3-alpine"
     ports:
       - "5436:5432"
@@ -29,27 +28,28 @@ services:
     volumes:
       - rss_db_postgres_data:/var/lib/postgresql/data:cached
 
-  redis:
+  rss-redis:
     image: redis
     ports:
       - '6380:6379'
 
-  worker:
+  rss-worker:
     build: .
+    container_name: rss_aggregator_fastapi_rss_worker
     command: celery -A celery_app worker --loglevel=INFO -Q main-queue -c 1
     depends_on:
-      - app
-      - redis
+      - rss-app
+      - rss-redis
     volumes:
       - ./src:/app
 
-  flower:
+  rss-flower:
     image: mher/flower
     command: celery --broker=redis://redis:6379/0 flower --port=5555
     ports:
-      - '5555:5555'
+      - '55555:5555'
     depends_on:
-      - redis
+      - rss-redis
 
 volumes:
   rss_db_postgres_data:
