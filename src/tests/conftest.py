@@ -22,7 +22,7 @@ from db.repositories.tags import TagsRepository
 from models import Tag
 from tests import factories
 
-assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from srclication"
+assert config.TESTING is True, "TESTING in config.py must be 'True', and appointed before imports from src"
 
 register(factories.TagFactory)
 register(factories.FeedFactory)
